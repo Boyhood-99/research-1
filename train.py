@@ -9,7 +9,7 @@ import math
 
 DEVICE=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-MAX_EPISODES=4
+MAX_EPISODES=400
 BATCHSIZE=256
 
 # 策略和算法
@@ -857,7 +857,7 @@ def draw():
 
     #SAC trajectory
 
-        plt.figure(10)
+        plt.figure(10, dpi=200)
         ax = plt.axes(projection='3d')
 
         l_uav_location_sac_x=l_uav_location_sac[:,0]
@@ -865,14 +865,16 @@ def draw():
 
         ax.plot3D(l_uav_location_sac_x, l_uav_location_sac_y, 150, label='The trajectory of H-UAV')
         
-        ax.legend()
+        
         tra = []
         for i in range(f_uav_num):
             f_uav_location_sac_x=f_uav_location_sac[:,i,0]
             f_uav_location_sac_y=f_uav_location_sac[:,i,1]
+            # tra_, = ax.plot3D(f_uav_location_sac_x, f_uav_location_sac_y, 140,label = f'The trajectory of L-UAV{i}' )
             tra_, = ax.plot3D(f_uav_location_sac_x, f_uav_location_sac_y, 140 )
             tra.append(tra_)
-        ax.legend(tra, ['The trajectory of L-UAVs'])
+        # ax.legend(tra, ['The trajectory of L-UAVs'])
+        ax.legend()
         ax.set_title('3D line plot')
         ax.set_xlabel('x')
         ax.set_ylabel('y')
