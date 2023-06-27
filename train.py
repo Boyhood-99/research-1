@@ -1,4 +1,5 @@
 import torch
+import matplotlib
 import numpy as np
 from env import Environment,Environment1
 from agent import SAC,DDPG
@@ -6,6 +7,7 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 from normalization import ZFilter
 import math
+# matplotlib.rcParams['font.family'] = 'SimHei'
 
 DEVICE=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -549,14 +551,14 @@ def draw():
     Q_VALUE_FLAG=0
 
     DDPG_TRA_FLAG=0
-    SAC_TRA_FLAG=1
+    SAC_TRA_FLAG=0
     FIX_TRA_FLAG=0
 
     ALGRITHM_FLAG=1
     POLICY_FLAG=0
     LEARNING_RATE=0
 
-    TIME_FLAG=1
+    TIME_FLAG=0
     DISTANCE_FLAG=0
 
     TRA_COMPARISION=0
@@ -577,7 +579,7 @@ def draw():
 
 
     episode_reward_sac,q,p,alpha,t_comm_sac,t_total_sac,l_uav_location_sac,f_uav_location_sac,d_sac,total_time_sac=sac_train()
-    # episode_reward_ddpg,a_loss,td_error,t_comm_ddpg,t_total_ddpg,l_uav_location_ddpg,f_uav_location_ddpg,d_ddpg=ddpg_train()
+    episode_reward_ddpg,a_loss,td_error,t_comm_ddpg,t_total_ddpg,l_uav_location_ddpg,f_uav_location_ddpg,d_ddpg=ddpg_train()
 
    
 
@@ -764,11 +766,26 @@ def draw():
 
         # plt.plot(episode_reward_fix,color='g', linewidth=1, linestyle='-',label='fixed')
         plt.plot(episode_reward_sac,color='b', linewidth=1, linestyle='-',label='SAC')
-        # plt.plot(episode_reward_ddpg,color='r', linewidth=1, linestyle='-',label='DDPG')
-
-        plt.xlabel('Episodes')
-        plt.ylabel('Total reward')
-        plt.legend()
+        plt.plot(episode_reward_ddpg,color='r', linewidth=1, linestyle='-',label='DDPG')
+        # plt.legend()
+        # plt.xlabel('Episodes')
+        # plt.ylabel('Total reward')
+        #------------------------------------------------专利需求
+        plt.xlabel('回合',   fontproperties="SimHei")
+        plt.ylabel('总奖励', fontproperties="SimHei")
+        # 添加箭头图例 
+        plt.annotate(text='SAC', xy=(100, episode_reward_sac[100]), xycoords='data', xytext=(+200, 40),
+             textcoords='offset points', fontsize=16,
+             arrowprops=dict(arrowstyle='->', 
+                            #  connectionstyle="arc3,rad=.2",
+                             ))
+        plt.annotate(text='DDPG', xy=(50, episode_reward_sac[50]), xycoords='data', xytext=(+25, 10),
+             textcoords='offset points', fontsize=16,
+             arrowprops=dict(arrowstyle='->', 
+                            #  connectionstyle="arc3,rad=.2",
+                             ))
+        #--------------------------------------------------------------------------
+        
 
         plt.savefig('./SAC/ddpg+sac.jpg')
         plt.savefig('./SAC/ddpg+sac.eps')
