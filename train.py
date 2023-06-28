@@ -1,4 +1,5 @@
 import torch
+import matplotlib
 import numpy as np
 from env import Environment,Environment1
 from agent import SAC,DDPG
@@ -6,10 +7,13 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 from normalization import ZFilter
 import math
+from matplotlib import font_manager
+# matplotlib.rcParams['font.family'] = 'SimHei'
+# plt.rcParams['font.sans-serif'] = ['Songti SC']
 
 DEVICE=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-MAX_EPISODES=4
+MAX_EPISODES=400
 BATCHSIZE=256
 
 # 策略和算法
@@ -549,14 +553,14 @@ def draw():
     Q_VALUE_FLAG=0
 
     DDPG_TRA_FLAG=0
-    SAC_TRA_FLAG=1
+    SAC_TRA_FLAG=0
     FIX_TRA_FLAG=0
 
     ALGRITHM_FLAG=1
     POLICY_FLAG=0
     LEARNING_RATE=0
 
-    TIME_FLAG=1
+    TIME_FLAG=0
     DISTANCE_FLAG=0
 
     TRA_COMPARISION=0
@@ -577,7 +581,7 @@ def draw():
 
 
     episode_reward_sac,q,p,alpha,t_comm_sac,t_total_sac,l_uav_location_sac,f_uav_location_sac,d_sac,total_time_sac=sac_train()
-    # episode_reward_ddpg,a_loss,td_error,t_comm_ddpg,t_total_ddpg,l_uav_location_ddpg,f_uav_location_ddpg,d_ddpg=ddpg_train()
+    episode_reward_ddpg,a_loss,td_error,t_comm_ddpg,t_total_ddpg,l_uav_location_ddpg,f_uav_location_ddpg,d_ddpg=ddpg_train()
 
    
 
@@ -764,11 +768,36 @@ def draw():
 
         # plt.plot(episode_reward_fix,color='g', linewidth=1, linestyle='-',label='fixed')
         plt.plot(episode_reward_sac,color='b', linewidth=1, linestyle='-',label='SAC')
-        # plt.plot(episode_reward_ddpg,color='r', linewidth=1, linestyle='-',label='DDPG')
-
-        plt.xlabel('Episodes')
-        plt.ylabel('Total reward')
-        plt.legend()
+        plt.plot(episode_reward_ddpg,color='r', linewidth=1, linestyle='-',label='DDPG')
+        # plt.legend()
+        # plt.xlabel('Episodes')
+        # plt.ylabel('Total reward')
+        #------------------------------------------------专利需求
+        #used for font display if not exist simhei.ttf for linux OS 
+        font = font_manager.FontProperties(fname='/root/paper1/simhei.ttf')
+        plt.xlabel('回合',  
+                   fontproperties=font,
+                    #  fontproperties="SimHei",
+                     )
+        plt.ylabel('总奖励', 
+                    fontproperties=font,
+                #    fontproperties="SimHei",
+                   )
+        # 添加箭头图例 
+        plt.annotate(text='SAC', xy=(100, episode_reward_sac[100]), xycoords='data', xytext=(200, 40),
+            #  textcoords='offset points', 
+                fontsize=16,
+                arrowprops=dict(arrowstyle='->', 
+                            #  connectionstyle="arc3,rad=.2",
+                             ))
+        plt.annotate(text='DDPG', xy=(50, episode_reward_ddpg[50]), xycoords='data', xytext=(0, 10),
+            #  textcoords='offset points', 
+                fontsize=16,
+                arrowprops=dict(arrowstyle='->', 
+                            #  connectionstyle="arc3,rad=.2",
+                             ))
+        #--------------------------------------------------------------------------
+        
 
         plt.savefig('./SAC/ddpg+sac.jpg')
         plt.savefig('./SAC/ddpg+sac.eps')
@@ -857,7 +886,7 @@ def draw():
 
     #SAC trajectory
 
-        plt.figure(10)
+        plt.figure(10, dpi=200)
         ax = plt.axes(projection='3d')
 
         l_uav_location_sac_x=l_uav_location_sac[:,0]
@@ -865,14 +894,16 @@ def draw():
 
         ax.plot3D(l_uav_location_sac_x, l_uav_location_sac_y, 150, label='The trajectory of H-UAV')
         
-        ax.legend()
+        
         tra = []
         for i in range(f_uav_num):
             f_uav_location_sac_x=f_uav_location_sac[:,i,0]
             f_uav_location_sac_y=f_uav_location_sac[:,i,1]
+            # tra_, = ax.plot3D(f_uav_location_sac_x, f_uav_location_sac_y, 140,label = f'The trajectory of L-UAV{i}' )
             tra_, = ax.plot3D(f_uav_location_sac_x, f_uav_location_sac_y, 140 )
             tra.append(tra_)
-        ax.legend(tra, ['The trajectory of L-UAVs'])
+        # ax.legend(tra, ['The trajectory of L-UAVs'])
+        ax.legend()
         ax.set_title('3D line plot')
         ax.set_xlabel('x')
         ax.set_ylabel('y')
