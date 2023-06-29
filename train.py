@@ -13,7 +13,7 @@ from matplotlib import font_manager
 
 DEVICE=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-MAX_EPISODES=400
+MAX_EPISODES=300
 BATCHSIZE=256
 
 # 策略和算法
@@ -278,7 +278,9 @@ def sac_train_federated(policy_lr = 3e-7,path='./SAC/policy_sac_model',env=Envir
     return episode_reward,q,p,alpha,t_comm,t_total,l_uav_location,f_uav_location,d
 
 #for sac trajectory and federated optimization
-def sac_train(policy_lr = 3e-7,path='./SAC/policy_sac_model',env=Environment(),capacity=10000,size=300000):#3e-7
+
+#policy_lr = 3e-7, soft_q_lr = 3e-6 可用于生成柱状图
+def sac_train(policy_lr = 3e-7, soft_q_lr = 3e-6, path='./SAC/policy_sac_model',env=Environment(),capacity=10000,size=300000):#3e-7
     env = env
     REPLAYBUFFER=size
     MEMORY_WARMUP_CAPACITY=capacity
@@ -556,7 +558,7 @@ def draw():
     SAC_TRA_FLAG=0
     FIX_TRA_FLAG=0
 
-    ALGRITHM_FLAG=1
+    ALGRITHM_FLAG=0
     POLICY_FLAG=0
     LEARNING_RATE=0
 
@@ -568,7 +570,7 @@ def draw():
     F_UAV_NUM_COM=0
     ACCURACY_FLAG=0
 
-    BAR_FLAG=0
+    BAR_FLAG=1
 
     
     
@@ -581,7 +583,7 @@ def draw():
 
 
     episode_reward_sac,q,p,alpha,t_comm_sac,t_total_sac,l_uav_location_sac,f_uav_location_sac,d_sac,total_time_sac=sac_train()
-    episode_reward_ddpg,a_loss,td_error,t_comm_ddpg,t_total_ddpg,l_uav_location_ddpg,f_uav_location_ddpg,d_ddpg=ddpg_train()
+    # episode_reward_ddpg,a_loss,td_error,t_comm_ddpg,t_total_ddpg,l_uav_location_ddpg,f_uav_location_ddpg,d_ddpg=ddpg_train()
 
    
 
@@ -602,15 +604,15 @@ def draw():
     # episode_reward_sac_0005,_,_,_,_,_,_,_,_=sac_train(env=Environment(epsilon=0.005,time_max=60,end_reward=17.5))
     # episode_reward_sac_0001,_,_,_,_,_,_,_,_=sac_train(env=Environment(epsilon=0.001,time_max=60,end_reward=22))
 
-# accuracy,number
-    # episode_reward_sac_5_01,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(epsilon=0.1))
-    # episode_reward_sac_5_001,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(epsilon=0.01))
-    # episode_reward_sac_5_0005,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(epsilon=0.005))#基准设置
+# global model accuracy, the number of L-UAVs
+    episode_reward_sac_5_01,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(epsilon=0.1))
+    episode_reward_sac_5_001,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(epsilon=0.01))
+    episode_reward_sac_5_0005,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(epsilon=0.005))#基准设置
 
-    # episode_reward_sac_10_01,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(f_uav_num=10,epsilon=0.1))
-    # episode_reward_sac_10_001,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(f_uav_num=10,epsilon=0.01))
-    # episode_reward_sac_10_0005,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(f_uav_num=10,epsilon=0.005,x_range=[-20,3000],y_range=[-200,200]))
-    # episode_reward_sac_10_0001,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(f_uav_num=10,x_range=[-20,3000],y_range=[-200,200]))
+    episode_reward_sac_10_01,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(f_uav_num=10,epsilon=0.1))
+    episode_reward_sac_10_001,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(f_uav_num=10,epsilon=0.01))
+    episode_reward_sac_10_0005,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(f_uav_num=10,epsilon=0.005,x_range=[-20,3000],y_range=[-200,200]))
+    episode_reward_sac_10_0001,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(f_uav_num=10,x_range=[-20,3000],y_range=[-200,200]))
 
     # episode_reward_sac_20_01,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(f_uav_num=20,epsilon=0.1,x_range=[-20,1000],y_range=[-200,200]))
     # episode_reward_sac_20_001,_,_,_,_,_,_,_,_,_=sac_train(env=Environment(f_uav_num=20,epsilon=0.01,x_range=[-20,2000],y_range=[-200,200]),capacity=10000)
@@ -645,7 +647,7 @@ def draw():
         plt.savefig('./SAC/path_f.pdf')
     
     if BAR_FLAG:
-        initial_point=350
+        initial_point=250
         #柱状图
         epsilon01=[np.array(episode_reward_sac_5_01[initial_point:]).mean(),np.array(episode_reward_sac_10_01[initial_point:]).mean(),]
                    #np.array(episode_reward_sac_20_01[initial_point:]).mean()]
@@ -663,21 +665,48 @@ def draw():
         xticks=np.arange(len(num_f_uav))
 
         fig,ax=plt.subplots(dpi=200)#画布大小，分辨率；
+#--------------------------------------------------------原
+        # width=0.2
         
-        width=0.2
-        ax.bar(xticks,epsilon01,width=width,label='ε=0.1')
-        ax.bar(xticks+0.2,epsilon001,width=width,label='ε=0.01')
-        ax.bar(xticks+0.4,epsilon0005,width=width,label='ε=0.005')
-        ax.bar(xticks+0.6,epsilon0001,width=width,label='ε=0.001')
+        # ax.bar(xticks,epsilon01,width=width,label='ε=0.1')
+        # ax.bar(xticks+0.2,epsilon001,width=width,label='ε=0.01')
+        # ax.bar(xticks+0.4,epsilon0005,width=width,label='ε=0.005')
+        # ax.bar(xticks+0.6,epsilon0001,width=width,label='ε=0.001')
 
-        ax.set_xlabel("Number of L-UAVs")
-        ax.set_ylabel("Total energy(kJ)")
-        
+        # ax.set_xlabel("Number of L-UAVs")
+        # ax.set_ylabel("Total energy(kJ)")
+#---------------------------------------------用于专利
+        xticks1 = xticks + 0.2
+        xticks2 = xticks + 0.4
+        xticks3 = xticks + 0.6
+     
+        width=0.2
+        ax.bar(xticks,epsilon01,width=width)
+        ax.bar(xticks1,epsilon001,width=width)
+        ax.bar(xticks2,epsilon0005,width=width)
+        ax.bar(xticks3,epsilon0001,width=width)
+
+        for a,b,c,d,e,f,g,h in zip(xticks, xticks1, xticks2, xticks3,epsilon01,epsilon001,epsilon0005,epsilon0001):
+            ax.text(a,e + 0.3,'ε=0.1',ha='center')
+            ax.text(b,f + 0.3,'ε=0.01',ha='center')
+            ax.text(c,g + 0.3,'ε=0.005',ha='center')
+            ax.text(d,h + 0.3,'ε=0.001',ha='center')
+        #used for font display if not exist simhei.ttf for linux OS 
+        font = font_manager.FontProperties(fname='/root/paper1/simhei.ttf')
+        ax.set_xlabel('L-UAVs的数目',  
+                   fontproperties=font,
+                    #  fontproperties="SimHei",
+                     )
+        ax.set_ylabel('总能耗(kJ)', 
+                    fontproperties=font,
+                #    fontproperties="SimHei",
+                   )
+#---------------------------------------------------
         # plt.rcParams.update({'font.size': 15})
         ax.legend()
         ax.set_xticks(xticks+0.3)
         ax.set_xticklabels(num_f_uav)
-
+#-----------------------------------------------------------
         # x = [5,10,20]
         # x1=np.array([i for i in range(0,15,5)])
         # #将每四个柱状图之间空一格

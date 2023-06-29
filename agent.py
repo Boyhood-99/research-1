@@ -8,6 +8,7 @@ from net import ValueNetwork,SoftQNetwork,PolicyNetwork,CriticTwin
 from buffer import ReplayBuffer
 from copy import deepcopy
 from torch.distributions import Normal
+from line_profiler import line_profiler
 
 
 class DDPG(object):
@@ -104,7 +105,7 @@ class DDPG(object):
 
 class SAC(object,):
     def __init__(self,state_dim, action_dim,device,batch_size=256,replay_buffer_size=NONE,
-                soft_tau=0.005,soft_q_lr = 1e-5,policy_lr = 1e-4,gamma=0.99,
+                soft_tau=0.005, soft_q_lr = 1e-5, policy_lr = 1e-4,gamma=0.99,
                 hidden_dim=256,hidden_dim2=128,hidden_dim3=128,policy_net=NONE):#1e-2):
 #增加节点数有时候可以使网络训练更快
         self.action_dim = action_dim
@@ -163,6 +164,7 @@ class SAC(object,):
         self.alpha_optim = torch.optim.Adam((self.alpha_log,), lr=0.00001)#0.0001)
         self.target_entropy = -self.action_dim
 
+
     def evaluate(self, state):
         mean, log_std = self.policy_net(state)
         std = log_std.exp()
@@ -198,11 +200,12 @@ class SAC(object,):
         mean=mean.tanh()  
         return mean.detach().cpu().numpy()
 
+
     def soft_update(self,target_net, current_net, tau):
         
         for tar, cur in zip(target_net.parameters(), current_net.parameters()):
             tar.data.copy_(cur.data* tau + tar.data * (1.0 - tau))
-
+    
     def get_q_loss(self):
         with torch.no_grad():
             state, action, reward, next_state, done = self.replay_buffer.sample(self.batch_size)
@@ -223,7 +226,7 @@ class SAC(object,):
         q_loss=(self.soft_q_criterion(q1,q_target)+self.soft_q_criterion(q2,q_target))/2
         return q_loss, state
 
-
+    
     def learn(self):
         q_loss = torch.zeros(1)
         policy_loss = torch.zeros(1)

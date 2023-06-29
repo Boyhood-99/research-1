@@ -2,6 +2,7 @@ import math
 import numpy as np
 from systemmodel import SystemModel
 from copy import deepcopy
+from line_profiler import line_profiler
 
 # np.seterr(divide='ignore', invalid='ignore')
 
@@ -60,6 +61,7 @@ class Environment(object):
         self.direction_flag_y=np.ones(self.f_uav_num)#方向控制
         
     # 定义每一个episode的初始状态，实现随机初始化
+    
     def reset(self):
         
 
