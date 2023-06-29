@@ -22,34 +22,6 @@ BATCHSIZE=256
 # # MEMORY_WARMUP_CAPACITY=10000
 # # REPLAYBUFFER=200000
 
-
-# 策略和算法
-# MAX_EPISODES=400
-# BATCHSIZE=2048#2048#512   #2048
-# MEMORY_WARMUP_CAPACITY=10000#5000
-# REPLAYBUFFER=150000#100000
-
-
-
-#accuracy and number 
-# MAX_EPISODES=200
-# BATCHSIZE=128 #256,32
-# # MEMORY_WARMUP_CAPACITY=5000#10000#20000
-# # REPLAYBUFFER=150000#200000#100000
-
-
-#学习率
-# MAX_EPISODES=500
-# BATCHSIZE=256
-# MEMORY_WARMUP_CAPACITY=20000
-# REPLAYBUFFER=100000
-
-#数量
-# MAX_EPISODES=200
-# BATCHSIZE=32 #256,32
-# MEMORY_WARMUP_CAPACITY=10000#20000
-# REPLAYBUFFER=150000#100000
-
 def stoaction():
 
     env = Environment() 
@@ -280,7 +252,8 @@ def sac_train_federated(policy_lr = 3e-7,path='./SAC/policy_sac_model',env=Envir
 #for sac trajectory and federated optimization
 
 #policy_lr = 3e-7, soft_q_lr = 3e-6 可用于生成柱状图
-def sac_train(policy_lr = 3e-7, soft_q_lr = 3e-6, path='./SAC/policy_sac_model',env=Environment(),capacity=10000,size=300000):#3e-7
+#默认情况 policy_lr = 3e-7, soft_q_lr = 1e-5
+def sac_train(policy_lr = 3e-6, soft_q_lr = 3e-5, path='./SAC/policy_sac_model',env=Environment(),capacity=10000,size=300000):#3e-7
     env = env
     REPLAYBUFFER=size
     MEMORY_WARMUP_CAPACITY=capacity

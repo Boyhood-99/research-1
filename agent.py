@@ -105,8 +105,10 @@ class DDPG(object):
 
 class SAC(object,):
     def __init__(self,state_dim, action_dim,device,batch_size=256,replay_buffer_size=NONE,
-                soft_tau=0.005, soft_q_lr = 1e-5, policy_lr = 1e-4,gamma=0.99,
-                hidden_dim=256,hidden_dim2=128,hidden_dim3=128,policy_net=NONE):#1e-2):
+                soft_tau=0.005, soft_q_lr = 1e-5, policy_lr = 1e-4,gamma=0.99,policy_net=NONE,
+                hidden_dim=128,hidden_dim2=64,hidden_dim3=64,
+                # hidden_dim=256,hidden_dim2=128,hidden_dim3=128,
+                ):#1e-2):
 #增加节点数有时候可以使网络训练更快
         self.action_dim = action_dim
         self.state_dim  = state_dim
