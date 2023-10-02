@@ -11,7 +11,7 @@ from torch import Tensor
 class BufferArray:  
     def __init__(self, memo_max_len, state_dim, action_dim, ):
         memo_dim = 1 + 1 + state_dim + action_dim + state_dim
-        self.memories = np.empty((memo_max_len, memo_dim), dtype=np.float32)
+        self.memories = np.empty((memo_max_len, memo_dim), dtype = np.float32)
 
         self.next_idx = 0
         self.is_full = False
